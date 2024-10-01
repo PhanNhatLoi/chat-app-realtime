@@ -6,6 +6,7 @@ export type GetAllMessageResponseType = {
   totalMessage?: number;
   page?: number;
   user: UserType;
+  lastedMessage: MessageResponseType;
 };
 
 export type MessageResponseType = {

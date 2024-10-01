@@ -1,5 +1,7 @@
 import {
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -47,7 +49,9 @@ const Friend = () => {
     );
   };
   return (
-    <View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
       <View style={{ marginBottom: 10 }}>
         <Input
           value={keyword}
@@ -56,10 +60,13 @@ const Friend = () => {
         />
       </View>
       <FlatList
-        data={allFriends.filter((f) => f.name.includes(keyword))}
+        contentContainerStyle={{ paddingBottom: 75 * scaleH }}
+        data={allFriends.filter((f) =>
+          f.name.toLowerCase().includes(keyword.toLowerCase())
+        )}
         renderItem={({ item }) => <RenderItemUser user={item} />}
       />
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

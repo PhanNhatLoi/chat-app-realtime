@@ -1,9 +1,10 @@
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   RefreshControl,
   ScrollView,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -23,6 +24,7 @@ import { UserType } from "@/api/auth/types";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import CheckIcon from "@/assets/icons/CheckIcon";
+import Input from "@/components/Inputs/Input";
 
 const Message = () => {
   const router = useRouter();
@@ -235,14 +237,18 @@ const Message = () => {
   );
 
   return (
-    <ThemedView style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
-          <ArrowLeftSingleIcon
-            onPress={() => {
-              router.back();
-            }}
-          />
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => {
+            router.back();
+          }}
+        >
+          <ArrowLeftSingleIcon />
         </TouchableOpacity>
         <View style={styles.justifySpace}>
           <Avatar size={50} uri={item?.avatar || ""} />
@@ -287,7 +293,7 @@ const Message = () => {
         })}
       </ScrollView>
       <View style={styles.bottom}>
-        <TextInput
+        <Input
           placeholder="Chat some thing..."
           style={styles.inputText}
           multiline
@@ -300,7 +306,7 @@ const Message = () => {
           <SendIcon />
         </TouchableOpacity>
       </View>
-    </ThemedView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -309,6 +315,8 @@ export default Message;
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 25 * scaleW,
+    backgroundColor: "white",
+    flex: 1,
   },
   header: {
     zIndex: 10,
@@ -352,13 +360,13 @@ const styles = StyleSheet.create({
   },
 
   bottom: {
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "white",
-    position: "absolute",
     width: widthScreen,
     height: 80 * scaleH,
-    bottom: 0,
     shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
     elevation: 5,
@@ -392,11 +400,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10 * scaleW,
   },
   inputText: {
+    justifyContent: "center",
+    alignItems: "center",
     width: "100%",
     height: "100%",
     fontSize: normalize(24),
     flex: 1,
-    padding: 10 * scaleW,
+    padding: 15 * scaleW,
   },
   loading: {
     position: "absolute",

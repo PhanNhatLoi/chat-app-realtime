@@ -1,7 +1,6 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { scaleW } from "@/utils/dimensionUtil";
-import { SERVER_URL } from "@/constants/env";
 
 type Props = {
   uri: string;
@@ -20,12 +19,7 @@ const Avatar = (props: Props) => {
     },
   });
 
-  return (
-    <Image
-      source={{ uri: uri ? SERVER_URL + "file/" + uri : "" }}
-      style={styles.avatar}
-    />
-  );
+  return <Image source={{ uri: uri }} style={styles.avatar} />;
 };
 
 export default Avatar;

@@ -5,19 +5,17 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { store } from "@/redux/store";
 import { ThemedView } from "@/components/ThemedView";
 import { normalize, scaleH, scaleW } from "@/utils/dimensionUtil";
 import { ThemedText } from "@/components/ThemedText";
 import ListUser from "@/components/ListUser";
 import Friend from "@/components/ListUser/Friend";
-import { useMessage } from "@/ctx/MessageContext";
 
 export default function HomeScreen() {
   const user = store.getState()?.auth?.user;
   const [itemSelected, setItemSelected] = useState<number>(0);
-  const { fetchAllUser, fetchAllMessage } = useMessage();
 
   const flatListItem = [
     {
@@ -54,11 +52,6 @@ export default function HomeScreen() {
     },
     [itemSelected]
   );
-
-  useEffect(() => {
-    fetchAllUser();
-    fetchAllMessage();
-  }, []);
 
   return (
     <ThemedView style={styles.container}>

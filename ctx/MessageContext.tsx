@@ -2,7 +2,15 @@ import { getAllUserApi } from "@/api/auth/actions";
 import { UserType } from "@/api/auth/types";
 import { getAllMessageApi } from "@/api/messsage/actions";
 import { GetAllMessageResponseType } from "@/api/messsage/types";
-import React, { createContext, useState, ReactNode, useCallback } from "react";
+import { store } from "@/redux/store";
+import React, {
+  createContext,
+  useState,
+  ReactNode,
+  useCallback,
+  useEffect,
+} from "react";
+import { useSession } from "./SessionContext";
 
 type MessageContextType = {
   allMessageList: GetAllMessageResponseType[];
@@ -17,6 +25,7 @@ export const MessageProvider = ({ children }: { children: ReactNode }) => {
   const [allMessageList, setAllMessageList] = useState<
     GetAllMessageResponseType[]
   >([]);
+  const { isAuthenticated } = useSession();
 
   const [allFriends, setAllFriends] = useState<UserType[]>([]);
 
@@ -27,6 +36,15 @@ export const MessageProvider = ({ children }: { children: ReactNode }) => {
   const fetchAllUser = useCallback(() => {
     fetchUser();
   }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setAllFriends([]);
+      setAllMessageList([]);
+      fetchAllUser();
+      fetchAllMessage();
+    }
+  }, [isAuthenticated]);
 
   const fetchUser = async () => {
     getAllUserApi()

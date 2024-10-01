@@ -16,6 +16,7 @@ export default function Input(props: InputProps) {
   const border = useThemeColor({}, "border");
   return (
     <TextInput
+      placeholderTextColor="#A0A4A2"
       style={{
         borderWidth: 1,
         borderColor: border,

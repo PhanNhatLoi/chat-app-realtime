@@ -40,14 +40,12 @@ const ListUser = () => {
   }, [user?._id]);
 
   const RenderItemUser = ({ item }: { item: GetAllMessageResponseType }) => {
-    const { user } = item;
-    const lastMessage = item.messages[item?.messages?.length - 1];
+    const { user, lastedMessage } = item;
     return (
       <TouchableOpacity
         style={styles.messageItem}
         onPress={() => {
-          //todo after
-          readMessageApi(user._id)
+          readMessageApi(user?._id)
             .then(() => {
               fetchAllMessage();
             })
@@ -70,17 +68,24 @@ const ListUser = () => {
             {user?.name}
           </Text>
           <Text numberOfLines={1} style={styles.textMessage}>
-            {lastMessage.msg}
+            {lastedMessage.msg}
           </Text>
         </View>
         <View style={{ alignItems: "flex-end" }}>
-          <Text style={styles.time}>
-            {new Date(lastMessage?.createdAt || "").toDateString()}
-          </Text>
+          <TimeText time={lastedMessage?.createdAt?.toString() || ""} />
           <Unread item={item} />
         </View>
       </TouchableOpacity>
     );
+  };
+
+  const TimeText = ({ time }: { time: string }) => {
+    const timeValue = new Date(time);
+    let text = timeValue.toLocaleDateString();
+    if (timeValue.getDate() === new Date().getDate()) {
+      text = timeValue.toLocaleTimeString();
+    }
+    return <Text style={styles.time}>{text}</Text>;
   };
 
   const Unread = ({ item }: { item: GetAllMessageResponseType }) => {
@@ -98,6 +103,7 @@ const ListUser = () => {
   return (
     <FlatList
       style={{ marginTop: 30 }}
+      contentContainerStyle={{ paddingBottom: 150 * scaleH }}
       data={allMessageList}
       renderItem={({ item }) => <RenderItemUser item={item} />}
     />
@@ -133,6 +139,7 @@ const styles = StyleSheet.create({
     fontSize: normalize(14),
     fontWeight: "600",
     flex: 1,
+    textAlign: "right",
   },
   unread: {
     height: 20 * scaleW,
