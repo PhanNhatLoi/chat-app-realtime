@@ -1,70 +1,106 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  Text,
+  TouchableOpacity,
+} from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { store } from "@/redux/store";
+import { ThemedView } from "@/components/ThemedView";
+import { normalize, scaleH, scaleW } from "@/utils/dimensionUtil";
+import { ThemedText } from "@/components/ThemedText";
+import ListUser from "@/components/ListUser";
+import Friend from "@/components/ListUser/Friend";
+import { useMessage } from "@/ctx/MessageContext";
 
 export default function HomeScreen() {
+  const user = store.getState()?.auth?.user;
+  const [itemSelected, setItemSelected] = useState<number>(0);
+  const { fetchAllUser, fetchAllMessage } = useMessage();
+
+  const flatListItem = [
+    {
+      title: "Recents",
+      id: 0,
+    },
+    {
+      title: "Friends",
+      id: 1,
+    },
+  ];
+  const RenderItemList = useCallback(
+    ({ item }: { item: { title: string; id: number } }) => {
+      return (
+        <TouchableOpacity
+          onPress={() => {
+            setItemSelected(item.id);
+          }}
+          style={[
+            styles.itemTopbar,
+            { backgroundColor: itemSelected === item.id ? "#1E68D7" : "white" },
+          ]}
+        >
+          <Text
+            style={[
+              styles.itemText,
+              { color: itemSelected === item.id ? "white" : "#1E68D7" },
+            ]}
+          >
+            {item.title}
+          </Text>
+        </TouchableOpacity>
+      );
+    },
+    [itemSelected]
+  );
+
+  useEffect(() => {
+    fetchAllUser();
+    fetchAllMessage();
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <ThemedView style={styles.container}>
+      <View style={styles.header}>
+        <ThemedText numberOfLines={1} style={styles.helloText}>
+          Hello, {user?.name || user?.email || "User"}
+        </ThemedText>
+      </View>
+      <View>
+        <FlatList
+          horizontal
+          data={flatListItem}
+          renderItem={({ item }) => <RenderItemList item={item} />}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      </View>
+      {itemSelected === 0 && <ListUser />}
+      {itemSelected === 1 && <Friend />}
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    padding: 24,
+    backgroundColor: "white",
+    flex: 1,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  header: {
+    marginTop: 20 * scaleH,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  helloText: {
+    textAlign: "right",
+    fontSize: normalize(24),
+    lineHeight: 24 * scaleH,
+  },
+  itemTopbar: {
+    padding: 15 * scaleW,
+    alignItems: "center",
+    margin: 5 * scaleW,
+    borderRadius: 18 * scaleW,
+  },
+  itemText: {
+    color: "white",
   },
 });
