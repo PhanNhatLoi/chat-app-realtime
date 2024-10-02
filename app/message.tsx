@@ -171,14 +171,14 @@ const Message = () => {
     getMessageByIdApi(params, item._id)
       .then((res) => {
         setMessage([...res.messages.reverse(), ...message]);
-        if (scroll) {
-          scrollRef.current?.scrollToEnd();
-        }
       })
       .catch((err) => {
         console.log(err);
       })
       .finally(() => {
+        if (scroll) {
+          scrollRef.current?.scrollToEnd();
+        }
         setTimeout(() => {
           setLoading(false);
           setRefreshing(false);
@@ -245,7 +245,7 @@ const Message = () => {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => {
-            router.back();
+            router.navigate("/(tabs)");
           }}
         >
           <ArrowLeftSingleIcon />

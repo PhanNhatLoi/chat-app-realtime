@@ -37,3 +37,25 @@ export const getAllUserApi = (): Promise<{ user: UserType[] }> => {
     path: "user/all_infor",
   });
 };
+
+export const changePasswordApi = (body: {
+  currentPassword: string;
+  password: string;
+}): Promise<{ msg: string }> => {
+  return FETCH({
+    method: "PUT",
+    path: "user/change_password",
+    body,
+  });
+};
+
+export const updateProfileApi = (body: {
+  name: string;
+  avatar: string;
+}): Promise<{ msg: string }> => {
+  return FETCH({
+    method: "PATCH",
+    path: "user/update",
+    body,
+  });
+};

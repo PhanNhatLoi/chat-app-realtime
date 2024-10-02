@@ -7,35 +7,40 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { normalize, scaleH, scaleW } from "@/utils/dimensionUtil";
 import Avatar from "../Avatar";
 import { useMessage } from "@/ctx/MessageContext";
 import { UserType } from "@/api/auth/types";
 import { useRouter } from "expo-router";
 import Input from "../Inputs/Input";
+import Pusher from "pusher-js/react-native";
+import { pusher_channel, pusher_cluster, pusher_key } from "@/constants/env";
 
 const Friend = () => {
-  const { allFriends } = useMessage();
+  const { allFriends, fetchAllUser } = useMessage();
   const router = useRouter();
   const [keyword, setKeyword] = useState<string>("");
 
+  useEffect(() => {
+    const pusher = new Pusher(pusher_key, {
+      cluster: pusher_cluster,
+    });
+    const channelApp = pusher.subscribe(pusher_channel);
+    // event send-msg from user
+    channelApp.bind("user-register", () => {
+      fetchAllUser();
+    });
+
+    // event update info from user
+    channelApp.bind("user-update", () => {
+      fetchAllUser();
+    });
+  }, []);
+
   const RenderItemUser = ({ user }: { user: UserType }) => {
     return (
-      <TouchableOpacity
-        style={styles.messageItem}
-        onPress={() => {
-          //todo after
-          router.push({
-            pathname: "/message",
-            params: {
-              _id: user._id,
-              avatar: user?.avatar,
-              name: user?.name,
-            },
-          });
-        }}
-      >
+      <View style={styles.messageItem}>
         <Avatar uri={user?.avatar} size={50} />
         <View style={styles.leftContent}>
           <Text numberOfLines={1} style={styles.textTitle}>
@@ -45,7 +50,7 @@ const Friend = () => {
             {user?.email}
           </Text>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
   return (
@@ -64,7 +69,23 @@ const Friend = () => {
         data={allFriends.filter((f) =>
           f.name.toLowerCase().includes(keyword.toLowerCase())
         )}
-        renderItem={({ item }) => <RenderItemUser user={item} />}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            onPress={() => {
+              //todo after
+              router.push({
+                pathname: "/message",
+                params: {
+                  _id: item?._id,
+                  avatar: item?.avatar,
+                  name: item?.name,
+                },
+              });
+            }}
+          >
+            <RenderItemUser user={item} />
+          </TouchableOpacity>
+        )}
       />
     </KeyboardAvoidingView>
   );

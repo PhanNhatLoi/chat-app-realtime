@@ -14,6 +14,7 @@ import ProfileInfoIcon from "@/assets/icons/ProfileInfo";
 import SettingIcon from "@/assets/icons/Setting";
 import QuestionIcon from "@/assets/icons/Question";
 import SupportIcon from "@/assets/icons/Support";
+import { router } from "expo-router";
 type menuItemType = {
   id: number;
   label: string;
@@ -33,14 +34,18 @@ export default function TabTwoScreen() {
       id: 1,
       icon: <ProfileInfoIcon />,
       label: "Profile Information",
-      onClick: () => {},
+      onClick: () => {
+        router.navigate("/profile-info");
+      },
       required: true,
     },
     {
       id: 4,
       icon: <SettingIcon />,
-      label: "settings",
-      onClick: () => {},
+      label: "Change password",
+      onClick: () => {
+        router.navigate("/change-password");
+      },
     },
     {
       id: 5,

@@ -129,11 +129,11 @@ function handleResponse({
       onFullfill(responseContent);
       break;
     }
-    case 400:
-    case 401:
     case 403:
       Alert.alert("session exp, please login again!");
       store.dispatch(logout());
+    case 400:
+    case 401:
     case 404:
     case 500:
       onReject(errors);

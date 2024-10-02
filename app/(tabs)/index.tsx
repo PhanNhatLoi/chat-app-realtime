@@ -12,6 +12,7 @@ import { normalize, scaleH, scaleW } from "@/utils/dimensionUtil";
 import { ThemedText } from "@/components/ThemedText";
 import ListUser from "@/components/ListUser";
 import Friend from "@/components/ListUser/Friend";
+import { router } from "expo-router";
 
 export default function HomeScreen() {
   const user = store.getState()?.auth?.user;

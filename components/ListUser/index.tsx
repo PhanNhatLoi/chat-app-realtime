@@ -13,13 +13,12 @@ import { store } from "@/redux/store";
 import Pusher from "pusher-js/react-native";
 import { pusher_cluster, pusher_key } from "@/constants/env";
 import { readMessageApi } from "@/api/messsage/actions";
-import { useRouter } from "expo-router";
+import { router, useRouter } from "expo-router";
 import { normalize, scaleH, scaleW } from "@/utils/dimensionUtil";
 
 const ListUser = () => {
   const { allMessageList, fetchAllMessage } = useMessage();
   const user = store.getState()?.auth?.user;
-  const router = useRouter();
 
   useEffect(() => {
     if (user?._id) {
@@ -42,26 +41,7 @@ const ListUser = () => {
   const RenderItemUser = ({ item }: { item: GetAllMessageResponseType }) => {
     const { user, lastedMessage } = item;
     return (
-      <TouchableOpacity
-        style={styles.messageItem}
-        onPress={() => {
-          readMessageApi(user?._id)
-            .then(() => {
-              fetchAllMessage();
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-          router.push({
-            pathname: "/message",
-            params: {
-              _id: item._id,
-              avatar: user?.avatar,
-              name: user?.name,
-            },
-          });
-        }}
-      >
+      <View style={styles.messageItem}>
         <Avatar uri={user?.avatar} size={50} />
         <View style={styles.leftContent}>
           <Text numberOfLines={1} style={styles.textTitle}>
@@ -75,7 +55,7 @@ const ListUser = () => {
           <TimeText time={lastedMessage?.createdAt?.toString() || ""} />
           <Unread item={item} />
         </View>
-      </TouchableOpacity>
+      </View>
     );
   };
 
@@ -105,7 +85,30 @@ const ListUser = () => {
       style={{ marginTop: 30 }}
       contentContainerStyle={{ paddingBottom: 150 * scaleH }}
       data={allMessageList}
-      renderItem={({ item }) => <RenderItemUser item={item} />}
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          onPress={() => {
+            readMessageApi(item?.user?._id)
+              .then(() => {
+                fetchAllMessage();
+              })
+              .catch((err) => {
+                console.log(err);
+              });
+            router.push({
+              pathname: "/message",
+              params: {
+                _id: item._id,
+                avatar: item?.user?.avatar,
+                name: item?.user?.name,
+                email: item.user.email,
+              },
+            });
+          }}
+        >
+          <RenderItemUser item={item} />
+        </TouchableOpacity>
+      )}
     />
   );
 };

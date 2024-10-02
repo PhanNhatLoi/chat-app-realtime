@@ -30,7 +30,7 @@ const LoadingButton = (props: Props) => {
   return (
     <TouchableOpacity
       disabled={disabled || loading}
-      style={style}
+      style={[style, disabled ? { backgroundColor: "gray" } : {}]}
       onPress={onPress}
     >
       {loading ? (
