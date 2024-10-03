@@ -46,3 +46,21 @@ export const readMessageApi = (
     },
   });
 };
+
+export const deleteMessageApi = (msgId: string): Promise<{ msg: string }> => {
+  return FETCH({
+    method: "DELETE",
+    path: `message/remove-msg/${msgId}`,
+  });
+};
+
+export const reactMessageApi = (
+  msgId: string,
+  body: { react: string }
+): Promise<{ msg: string }> => {
+  return FETCH({
+    method: "POST",
+    path: `message/react-msg/${msgId}`,
+    body,
+  });
+};

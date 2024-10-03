@@ -38,15 +38,12 @@ export default function RootLayout() {
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor} loading={null}>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
+        <ThemeProvider value={DefaultTheme}>
           <SessionProvider>
             <MessageProvider>
               <Slot
                 screenOptions={{
                   initialRouteName: "sign-in",
-                  animation: "fade_from_bottom",
                 }}
               />
             </MessageProvider>

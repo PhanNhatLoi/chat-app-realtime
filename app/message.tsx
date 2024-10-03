@@ -23,8 +23,9 @@ import { pusher_cluster, pusher_key } from "@/constants/env";
 import { UserType } from "@/api/auth/types";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
-import CheckIcon from "@/assets/icons/CheckIcon";
 import Input from "@/components/Inputs/Input";
+import PrimaryMessage from "@/components/PrimaryMessage";
+import SecondMessage from "@/components/SecondMessage";
 
 const Message = () => {
   const router = useRouter();
@@ -62,26 +63,42 @@ const Message = () => {
 
   const handleRefreshMessages = () => {
     if (actionToRefresh?.action === "sent-msg") {
-      setMessage((pre) => {
-        return pre.map((item) => {
-          return item.messageKey !== actionToRefresh.msg.messageKey
-            ? item
-            : actionToRefresh.msg;
+      if (
+        message.some((s) => s.messageKey === actionToRefresh.msg.messageKey)
+      ) {
+        setMessage((pre) => {
+          return pre.map((item) => {
+            return item.messageKey === actionToRefresh.msg.messageKey
+              ? actionToRefresh.msg
+              : item;
+          });
         });
-      });
+      } else {
+        setMessage([...message, actionToRefresh.msg]);
+      }
     }
     if (actionToRefresh?.action === "receive-msg") {
       setMessage([...message, actionToRefresh.msg]);
       scrollRef.current?.scrollToEnd();
     }
     if (actionToRefresh?.action === "update-msg") {
-      setMessage((pre) => {
-        return pre.map((item) => {
-          return item.messageKey !== actionToRefresh.msg.messageKey
-            ? item
-            : actionToRefresh.msg;
+      if (actionToRefresh.msg._id) {
+        setMessage((pre) => {
+          return pre.map((item) => {
+            return item._id !== actionToRefresh.msg._id
+              ? item
+              : actionToRefresh.msg;
+          });
         });
-      });
+      } else {
+        setMessage((pre) => {
+          return pre.map((item) => {
+            return item.messageKey !== actionToRefresh.msg.messageKey
+              ? item
+              : actionToRefresh.msg;
+          });
+        });
+      }
     }
     setRefresh(false);
   };
@@ -125,6 +142,18 @@ const Message = () => {
         });
         setRefresh(true);
       });
+
+      // event send-done
+      channelUser.bind(
+        "update-msg",
+        ({ msg }: { msg: MessageResponseType }) => {
+          setActionToRefresh({
+            action: "update-msg",
+            msg: msg,
+          });
+          setRefresh(true);
+        }
+      );
 
       return () => {
         pusher.unsubscribe(user._id);
@@ -185,56 +214,6 @@ const Message = () => {
         }, 1000);
       });
   };
-
-  const PrimaryMessage = useCallback(
-    ({ item }: { item: MessageResponseType }) => {
-      return (
-        <View
-          style={[
-            styles.primaryMessage,
-            item.status === "deleted"
-              ? {
-                  backgroundColor: "gray",
-                }
-              : {
-                  ...styles.boxShadow,
-                  backgroundColor: "#ECEAEA",
-                },
-          ]}
-        >
-          <ThemedText style={styles.textMessagePrimary}>{item.msg}</ThemedText>
-        </View>
-      );
-    },
-    [message]
-  );
-  const SecondMessage = useCallback(
-    ({ item }: { item: MessageResponseType }) => {
-      return (
-        <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
-          <View
-            style={[
-              styles.secondMessage,
-              item.status === "deleted"
-                ? {
-                    backgroundColor: "gray",
-                  }
-                : {
-                    ...styles.boxShadow,
-                    backgroundColor: "#59CD30",
-                  },
-            ]}
-          >
-            <ThemedText style={styles.textMessageSecond}>{item.msg}</ThemedText>
-          </View>
-          {item.status === "seen" && <CheckIcon enable />}
-          {item.status === "sent" && <CheckIcon enable={false} />}
-          {item.status === "sending..." && <SendIcon width={15} height={15} />}
-        </View>
-      );
-    },
-    [message]
-  );
 
   return (
     <KeyboardAvoidingView
@@ -373,27 +352,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     zIndex: 10,
   },
-  primaryMessage: {
-    maxWidth: "80%",
-    marginBottom: 16 * scaleW,
-    backgroundColor: "#ECEAEA",
-    paddingHorizontal: 24 * scaleW,
-    paddingVertical: 16 * scaleH,
-    borderTopLeftRadius: 18 * scaleW,
-    borderTopRightRadius: 18 * scaleW,
-    borderBottomLeftRadius: 4 * scaleW,
-    borderBottomRightRadius: 18 * scaleW,
-  },
-  secondMessage: {
-    maxWidth: "80%",
-    marginBottom: 16 * scaleW,
-    paddingHorizontal: 24 * scaleW,
-    paddingVertical: 16 * scaleH,
-    borderTopLeftRadius: 18 * scaleW,
-    borderTopRightRadius: 18 * scaleW,
-    borderBottomLeftRadius: 18 * scaleW,
-    borderBottomRightRadius: 5 * scaleW,
-  },
+
   sendButton: {
     alignItems: "center",
     justifyContent: "center",
@@ -418,13 +377,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  textMessagePrimary: {
-    textAlign: "left",
-    color: "black",
-  },
-  textMessageSecond: {
-    color: "white",
-  },
+
   textStatus: {
     color: "gray",
     fontSize: normalize(12),
