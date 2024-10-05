@@ -79,6 +79,7 @@ const Friend = () => {
                   _id: item?._id,
                   avatar: item?.avatar,
                   name: item?.name,
+                  email: item?.email,
                 },
               });
             }}

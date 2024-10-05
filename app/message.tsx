@@ -82,10 +82,10 @@ const Message = () => {
       scrollRef.current?.scrollToEnd();
     }
     if (actionToRefresh?.action === "update-msg") {
-      if (actionToRefresh.msg._id) {
+      if (actionToRefresh?.msg?._id) {
         setMessage((pre) => {
           return pre.map((item) => {
-            return item._id !== actionToRefresh.msg._id
+            return item._id !== actionToRefresh.msg?._id
               ? item
               : actionToRefresh.msg;
           });
