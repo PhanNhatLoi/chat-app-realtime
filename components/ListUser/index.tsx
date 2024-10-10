@@ -13,7 +13,7 @@ import { store } from "@/redux/store";
 import Pusher from "pusher-js/react-native";
 import { pusher_cluster, pusher_key } from "@/constants/env";
 import { readMessageApi } from "@/api/messsage/actions";
-import { router, useRouter } from "expo-router";
+import { router } from "expo-router";
 import { normalize, scaleH, scaleW } from "@/utils/dimensionUtil";
 
 const ListUser = () => {
@@ -22,6 +22,7 @@ const ListUser = () => {
 
   useEffect(() => {
     if (user?._id) {
+      fetchAllMessage();
       const pusher = new Pusher(pusher_key, {
         cluster: pusher_cluster,
       });
@@ -88,13 +89,14 @@ const ListUser = () => {
       renderItem={({ item }) => (
         <TouchableOpacity
           onPress={() => {
-            readMessageApi(item?.user?._id)
-              .then(() => {
-                fetchAllMessage();
-              })
-              .catch((err) => {
-                console.log(err);
-              });
+            item?._id &&
+              readMessageApi(item._id)
+                .then(() => {
+                  fetchAllMessage();
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
             router.push({
               pathname: "/message",
               params: {

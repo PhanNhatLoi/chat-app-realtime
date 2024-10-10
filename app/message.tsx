@@ -17,7 +17,11 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
 import SendIcon from "@/assets/icons/SendIcon";
 import { MessageResponseType } from "@/api/messsage/types";
-import { getMessageByIdApi, sendMessageApi } from "@/api/messsage/actions";
+import {
+  getMessageByIdApi,
+  readMessageApi,
+  sendMessageApi,
+} from "@/api/messsage/actions";
 import Pusher from "pusher-js/react-native";
 import { pusher_cluster, pusher_key } from "@/constants/env";
 import { UserType } from "@/api/auth/types";
@@ -64,11 +68,11 @@ const Message = () => {
   const handleRefreshMessages = () => {
     if (actionToRefresh?.action === "sent-msg") {
       if (
-        message.some((s) => s.messageKey === actionToRefresh.msg.messageKey)
+        message.some((s) => s.messageKey === actionToRefresh.msg?.messageKey)
       ) {
         setMessage((pre) => {
           return pre.map((item) => {
-            return item.messageKey === actionToRefresh.msg.messageKey
+            return item.messageKey === actionToRefresh.msg?.messageKey
               ? actionToRefresh.msg
               : item;
           });
@@ -80,6 +84,7 @@ const Message = () => {
     if (actionToRefresh?.action === "receive-msg") {
       setMessage([...message, actionToRefresh.msg]);
       scrollRef.current?.scrollToEnd();
+      actionToRefresh.user && readMessageApi(actionToRefresh.user?._id);
     }
     if (actionToRefresh?.action === "update-msg") {
       if (actionToRefresh?.msg?._id) {
@@ -93,7 +98,7 @@ const Message = () => {
       } else {
         setMessage((pre) => {
           return pre.map((item) => {
-            return item.messageKey !== actionToRefresh.msg.messageKey
+            return item?.messageKey !== actionToRefresh.msg?.messageKey
               ? item
               : actionToRefresh.msg;
           });
@@ -199,7 +204,7 @@ const Message = () => {
     scroll && setLoading(true);
     getMessageByIdApi(params, item._id)
       .then((res) => {
-        setMessage([...res.messages.reverse(), ...message]);
+        res?.messages && setMessage([...res.messages.reverse(), ...message]);
       })
       .catch((err) => {
         console.log(err);
